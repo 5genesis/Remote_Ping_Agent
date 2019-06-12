@@ -89,15 +89,20 @@ class iPerf:
             print(f'Error: {error}')
             abort(403)
 
+        # Force format to MBytes and interval to 1s
         parametersDict['-f'] = 'M'
+        parametersDict['-i'] = '1'
 
         if '-u' in parametersDict.keys() or '-U' in parametersDict.keys():
             protocol = 'UDP'
         else:
             protocol = 'TCP'
 
+        # 'P' parameter must be after client host and port
         if '-P' in parametersDict.keys():
             parallelEnabled = True
+            moveToLast = parametersDict.pop('-P')
+            parametersDict['-P'] = moveToLast
         else:
             parallelEnabled = False
 
@@ -118,6 +123,7 @@ class iPerf:
             print('Client running')
         else:
             print('Server running')
+
         process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         cls.stdout(process, protocol, parallelEnabled)
         exitCode = process.wait()
@@ -138,6 +144,7 @@ class iPerf:
         pipe = process.stdout
 
         for line in iter(pipe.readline, b''):
+
             try: line = line.decode('utf-8').rstrip()
             except Exception as e: line = f'DECODING EXCEPTION: {e}'
             if 'connect failed' in line or 'error' in line:
@@ -153,8 +160,12 @@ def parseIperf(line: str, protocol: str, parallelEnabled: bool):
 
     udpPattern = r' *(\d+(\.\d+)?) *ms *\d+ */ *\d+ \((\d+(\.\d+)?)%\) *'
     # [  3]  0.0-10.0 sec  1.25 MBytes  0.13 MBytes/sec   0.026 ms    0/  892 (0%)
-    #if protocol == 'UDP':
-    #    return re.search(udpPattern, line)
-    #else:
-    #    return re.search(pattern, line)
-    return re.search(pattern, line)
+
+    result = re.search(pattern, line)
+    if result and protocol == 'UDP':
+        result = re.search(udpPattern, line)
+
+    if result and parallelEnabled:
+        result = 'SUM' in line
+
+    return result
