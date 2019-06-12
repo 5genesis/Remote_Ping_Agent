@@ -1,5 +1,7 @@
-import subprocess
 import re
+import os
+import signal
+import subprocess
 from typing import List, Dict
 from datetime import datetime
 from flask import abort
@@ -26,6 +28,8 @@ class iPerf:
     result: List[str] = []
     error: List[str] = []
     startTime: datetime = None
+    isServer = False
+    processPID: int = -1
 
     @classmethod
     def Initialize(cls, executable: str):
@@ -38,6 +42,21 @@ class iPerf:
             params['-s'] = ""
 
         return cls.execute(params)
+
+    @classmethod
+    def Close(cls):
+        try:
+            if not cls.isRunning or cls.processPID == -1:
+                raise RuntimeError('iPerf is not running')
+            os.kill(cls.processPID, signal.SIGTERM)
+            cls.processPID = -1
+
+            if cls.error:
+                raise RuntimeError(f'Error: {cls.error}')
+
+        except RuntimeError as error:
+            print(f'{error}')
+            abort(403)
 
     @classmethod
     def Client(cls, host: str, parameters: List[str]):
@@ -111,7 +130,6 @@ class iPerf:
             parameters.append(key)
             parameters.append(parametersDict[key])
 
-        print(parameters)
         params = [cls.executable, *parameters]
 
         cls.isRunning = True
@@ -119,23 +137,29 @@ class iPerf:
         cls.error = []
         cls.startTime = datetime.now()
 
+        process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        cls.processPID = process.pid
         if '-c' in parametersDict.keys():
+            cls.isServer = False
             print('Client running')
         else:
+            cls.isServer = True
             print('Server running')
 
-        process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         cls.stdout(process, protocol, parallelEnabled)
         exitCode = process.wait()
         cls.isRunning = False
-        if '-c' in parametersDict.keys():
+        if not cls.isServer:
             print('Client finished')
-            try:
-                if cls.error:
-                    raise RuntimeError(f'Error: {cls.error}')
-            except RuntimeError as error:
-                print(f'{error}')
-                abort(403)
+        else:
+            print('Server finished')
+
+        try:
+            if cls.error:
+                raise RuntimeError(f'Error: {cls.error}')
+        except RuntimeError as error:
+            print(f'{error}')
+            abort(403)
 
         return exitCode
 

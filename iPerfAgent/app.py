@@ -41,6 +41,12 @@ def Server(parameters: List[str]):
     return ''
 
 
+@app.route('/Close', methods=['GET'])
+def Close():
+    iPerf.Close()
+    return ''
+
+
 @app.route('/LastResult', methods=['GET'])
 def LastResult():
     iPerf.LastResult()
