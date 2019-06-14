@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from threading import Thread
 from iperfExecutor import iPerf
-from iperfConfig import iPerfConfig
+from iperfExecutor.iperfConfig import iPerfConfig
 
 app = Flask(__name__)
 iPerf.Initialize(iPerfConfig.IPERF_PATH+'/iperf.exe')

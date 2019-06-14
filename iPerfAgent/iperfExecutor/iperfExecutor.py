@@ -3,7 +3,7 @@ import signal
 import subprocess
 from typing import List, Dict
 from datetime import datetime
-from iperfConfig import iPerfConfig
+from iperfExecutor.iperfConfig import iPerfConfig
 
 
 class iPerf:
