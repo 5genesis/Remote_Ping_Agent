@@ -1,13 +1,20 @@
+import os
+import yaml
 from flask import Flask, jsonify
-from threading import Thread
+from typing import List
 from iperfExecutor import iPerf
 from iperfExecutor.iperfConfig import iPerfConfig
 
 app = Flask(__name__)
-iPerf.Initialize(iPerfConfig.IPERF_PATH+'/iperf.exe')
+
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(THIS_FOLDER, 'config.yml'), 'r', encoding='utf-8') as file:
+    data = yaml.safe_load(file)
+
+iPerf.Initialize(data['IPERF_PATH'])
 
 
-def async_task(clientServer: str, host: str, parameters: str):
+def runIperf(clientServer: str, host: str, parameters: List[str]):
     if clientServer == 'Client':
         iPerf.Client(host, parameters)
     else:
@@ -17,7 +24,7 @@ def async_task(clientServer: str, host: str, parameters: str):
 @app.route('/Client', methods=['GET'])
 def BasicClient():
     try:
-        Thread(target=async_task, args=('Client', '127.0.0.1', [])).start()
+        runIperf('Client', '127.0.0.1', [])
         return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf client'})
     except RuntimeError as error:
         print(f'{error}')
@@ -27,7 +34,7 @@ def BasicClient():
 @app.route('/Server', methods=['GET'])
 def BasicServer():
     try:
-        Thread(target=async_task, args=('Server', '', [])).start()
+        runIperf('Server', '', [])
         return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf server'})
 
     except RuntimeError as error:
@@ -40,7 +47,7 @@ def Client(parameters: str):
     if iPerfConfig.formatValidation(parameters):
         try:
             parameters = parameters[1:-1].split(',')
-            Thread(target=async_task, args=('Client', '127.0.0.1', parameters)).start()
+            runIperf('Client', '127.0.0.1', parameters)
             return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf client'})
 
         except RuntimeError as error:
@@ -57,7 +64,7 @@ def Server(parameters: str):
     if iPerfConfig.formatValidation(parameters):
         try:
             parameters = parameters[1:-1].split(',')
-            Thread(target=async_task, args=('Server', '', parameters)).start()
+            runIperf('Server', '', parameters)
             return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf server',
                             'Result': iPerf.LastResult()})
         except RuntimeError as error:

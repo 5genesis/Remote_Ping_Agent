@@ -3,6 +3,7 @@ import signal
 import subprocess
 from typing import List, Dict
 from datetime import datetime
+from threading import Thread
 from iperfExecutor.iperfConfig import iPerfConfig
 
 
@@ -104,28 +105,8 @@ class iPerf:
 
         params = [cls.executable, *parameters]
 
-        cls.isRunning = True
-        cls.result = []
-        cls.error = []
-        cls.startTime = datetime.now()
-        process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        cls.processPID = process.pid
-        if '-c' in parametersDict.keys():
-            cls.isServer = False
-            print('Client running')
-        else:
-            cls.isServer = True
-            print('Server running')
-
-        cls.stdout(process, protocol, parallelEnabled)
-        exitCode = process.wait()
-        cls.isRunning = False
-        if not cls.isServer:
-            print('Client finished')
-        else:
-            print('Server finished')
-
-        return exitCode
+        Thread(target=cls.async_task, args=(params, protocol, parallelEnabled)).start()
+        return 1
 
     @classmethod
     def stdout(cls, process: subprocess.Popen, protocol: str, parallelEnabled: bool):
@@ -139,3 +120,27 @@ class iPerf:
                 cls.error.append(line)
             if iPerfConfig.parseIperfResult(line, protocol, parallelEnabled):
                 cls.result.append(line)
+
+    @classmethod
+    def async_task(cls, params: List[str], protocol: str, parallelEnabled: bool):
+        cls.isRunning = True
+        cls.result = []
+        cls.error = []
+        cls.startTime = datetime.now()
+        process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        cls.processPID = process.pid
+
+        if '-c' in params:
+            cls.isServer = False
+            print('Client running')
+        else:
+            cls.isServer = True
+            print('Server running')
+
+        cls.stdout(process, protocol, parallelEnabled)
+        process.wait()
+        cls.isRunning = False
+        if not cls.isServer:
+            print('Client finished')
+        else:
+            print('Server finished')
