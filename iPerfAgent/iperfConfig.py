@@ -3,7 +3,7 @@ from typing import List, Dict
 
 
 class iPerfConfig:
-    IPERF_PATH = 'C:/Users/Gonzalo/Documents/iperf.exe'
+    IPERF_PATH = 'C:/Users/Gonzalo/Documents'
 
     @classmethod
     def formatValidation(cls, parameters: str) -> bool:

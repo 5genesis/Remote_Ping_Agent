@@ -125,9 +125,6 @@ class iPerf:
         else:
             print('Server finished')
 
-        if cls.error:
-            raise RuntimeError(f'Error: {cls.error}')
-
         return exitCode
 
     @classmethod
