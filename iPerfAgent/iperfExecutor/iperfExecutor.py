@@ -74,7 +74,7 @@ class iPerf:
         return cls.isRunning
 
     @classmethod
-    def execute(cls, parametersDict: Dict) -> int:
+    def execute(cls, parametersDict: Dict) -> None:
         if cls.executable is None:
             raise RuntimeError('Running iPerf without executable')
         if cls.isRunning:
