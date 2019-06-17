@@ -75,7 +75,6 @@ class iPerf:
 
     @classmethod
     def execute(cls, parametersDict: Dict) -> int:
-
         if cls.executable is None:
             raise RuntimeError('Running iPerf without executable')
         if cls.isRunning:
@@ -104,9 +103,8 @@ class iPerf:
             parameters.append(parametersDict[key])
 
         params = [cls.executable, *parameters]
-
         Thread(target=cls.async_task, args=(params, protocol, parallelEnabled)).start()
-        return 1
+        return None
 
     @classmethod
     def stdout(cls, process: subprocess.Popen, protocol: str, parallelEnabled: bool):
@@ -114,10 +112,14 @@ class iPerf:
 
         for line in iter(pipe.readline, b''):
 
-            try: line = line.decode('utf-8').rstrip()
-            except Exception as e: line = f'DECODING EXCEPTION: {e}'
+            try:
+                line = line.decode('utf-8').rstrip()
+            except Exception as e:
+                line = f'DECODING EXCEPTION: {e}'
+
             if 'error' in line or 'failed' in line:
                 cls.error.append(line)
+
             if iPerfConfig.parseIperfResult(line, protocol, parallelEnabled):
                 cls.result.append(line)
 
@@ -139,6 +141,7 @@ class iPerf:
 
         cls.stdout(process, protocol, parallelEnabled)
         process.wait()
+
         cls.isRunning = False
         if not cls.isServer:
             print('Client finished')
