@@ -66,7 +66,7 @@ def Server(parameters: str):
             parameters = parameters[1:-1].split(',')
             runIperf('Server', '', parameters)
             return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf server',
-                            'Result': iPerf.LastResult()})
+                            'Result': iPerf.LastRawResult()})
         except RuntimeError as error:
             print(f'{error}')
             return jsonify({'Status': 'Error', 'Message': 'Error executing iPerf server', 'Error': f'{error}'}), 403
@@ -80,21 +80,32 @@ def Server(parameters: str):
 def Close():
     try:
         iPerf.Close()
-        return jsonify({'Status': 'Success', 'Message': 'Successfully closed iPerf', 'Result': iPerf.LastResult()})
+        return jsonify({'Status': 'Success', 'Message': 'Successfully closed iPerf', 'Result': iPerf.LastRawResult()})
     except RuntimeError as error:
         print(f'{error}')
         return jsonify({'Status': 'Error', 'Message': 'Error closing iPerf', 'Error': f'{error}'}), 403
 
 
-@app.route('/LastResult', methods=['GET'])
-def LastResult():
+@app.route('/LastRawResult', methods=['GET'])
+def LastRawResult():
     try:
-        iPerf.LastResult()
-        return jsonify({'Status': 'Success', 'Message': 'Successfully retrieved last result',
-                        'Result': iPerf.LastResult()})
+        iPerf.LastRawResult()
+        return jsonify({'Status': 'Success', 'Message': 'Successfully retrieved last raw result',
+                        'Result': iPerf.LastRawResult()})
     except RuntimeError as error:
         print(f'{error}')
-        return jsonify({'Status': 'Error', 'Message': 'Error retrieving last result', 'Error': f'{error}'}), 403
+        return jsonify({'Status': 'Error', 'Message': 'Error retrieving last raw result', 'Error': f'{error}'}), 403
+
+
+@app.route('/LastJsonResult', methods=['GET'])
+def LastJsonResult():
+    try:
+        iPerf.LastJsonResult()
+        return jsonify({'Status': 'Success', 'Message': 'Successfully retrieved last json result',
+                        'Result': iPerf.LastJsonResult()})
+    except RuntimeError as error:
+        print(f'{error}')
+        return jsonify({'Status': 'Error', 'Message': 'Error retrieving last json result', 'Error': f'{error}'}), 403
 
 
 @app.route('/LastError', methods=['GET'])
