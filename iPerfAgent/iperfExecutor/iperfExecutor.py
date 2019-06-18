@@ -10,7 +10,8 @@ from iperfExecutor.iperfConfig import iPerfConfig
 class iPerf:
     isRunning = False
     executable: str = None
-    result: List[str] = []
+    rawResult: List[str] = []
+    jsonResult: List[Dict] = []
     error: List[str] = []
     startTime: datetime = None
     isServer = False
@@ -47,12 +48,20 @@ class iPerf:
         return cls.execute(params)
 
     @classmethod
-    def LastResult(cls):
+    def LastRawResult(cls):
         if cls.isRunning:
             raise RuntimeError("iPerf is still running")
 
-        print(f'Last Result: {cls.result}')
-        return cls.result
+        print(f'Last Raw Result: {cls.rawResult}')
+        return cls.rawResult
+
+    @classmethod
+    def LastJsonResult(cls):
+        if cls.isRunning:
+            raise RuntimeError("iPerf is still running")
+
+        print(f'Last Json Result: {cls.jsonResult}')
+        return cls.jsonResult
 
     @classmethod
     def LastError(cls):
@@ -120,13 +129,15 @@ class iPerf:
             if 'error' in line or 'failed' in line:
                 cls.error.append(line)
 
-            if iPerfConfig.parseIperfResult(line, protocol, parallelEnabled):
-                cls.result.append(line)
+            parse = iPerfConfig.parseIperfResult(line, protocol, parallelEnabled, cls.startTime)
+            if parse:
+                cls.rawResult.append(line)
+                cls.jsonResult.append(parse)
 
     @classmethod
     def async_task(cls, params: List[str], protocol: str, parallelEnabled: bool):
         cls.isRunning = True
-        cls.result = []
+        cls.rawResult = []
         cls.error = []
         cls.startTime = datetime.now()
         process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
