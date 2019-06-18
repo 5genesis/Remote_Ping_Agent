@@ -140,20 +140,24 @@ class iPerf:
         cls.rawResult = []
         cls.error = []
         cls.startTime = datetime.now()
-        process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        cls.processPID = process.pid
+        try:
+            process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            cls.processPID = process.pid
 
-        if '-c' in params:
-            cls.isServer = False
-            print('Client running')
-        else:
-            cls.isServer = True
-            print('Server running')
+            if '-c' in params:
+                cls.isServer = False
+                print('Client running')
+            else:
+                cls.isServer = True
+                print('Server running')
 
-        cls.stdout(process, protocol, parallelEnabled)
-        process.wait()
+            cls.stdout(process, protocol, parallelEnabled)
+            process.wait()
+        except Exception as e:
+            print(f'Error in process: {e}')
+        finally:
+            cls.isRunning = False
 
-        cls.isRunning = False
         if not cls.isServer:
             print('Client finished')
         else:
