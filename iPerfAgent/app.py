@@ -65,8 +65,8 @@ def Server(parameters: str):
         try:
             parameters = parameters[1:-1].split(',')
             runIperf('Server', '', parameters)
-            return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf server',
-                            'Result': iPerf.LastRawResult()})
+            return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf server'})
+
         except RuntimeError as error:
             print(f'{error}')
             return jsonify({'Status': 'Error', 'Message': 'Error executing iPerf server', 'Error': f'{error}'}), 403
@@ -80,7 +80,7 @@ def Server(parameters: str):
 def Close():
     try:
         iPerf.Close()
-        return jsonify({'Status': 'Success', 'Message': 'Successfully closed iPerf', 'Result': iPerf.LastRawResult()})
+        return jsonify({'Status': 'Success', 'Message': 'Successfully closed iPerf'})
     except RuntimeError as error:
         print(f'{error}')
         return jsonify({'Status': 'Error', 'Message': 'Error closing iPerf', 'Error': f'{error}'}), 403
