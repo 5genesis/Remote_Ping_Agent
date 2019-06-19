@@ -139,7 +139,7 @@ class iPerf:
         cls.isRunning = True
         cls.rawResult = []
         cls.error = []
-        cls.startTime = datetime.now()
+        cls.startTime = datetime.utcnow()
         try:
             process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             cls.processPID = process.pid

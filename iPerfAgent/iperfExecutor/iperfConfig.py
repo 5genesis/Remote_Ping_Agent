@@ -1,7 +1,6 @@
 import re
-import datetime
 from typing import List, Dict
-
+from datetime import datetime, timedelta
 
 class iPerfConfig:
 
@@ -38,7 +37,9 @@ class iPerfConfig:
             if parallelEnabled and instanceId != 'SUM':
                 return None
 
-            jsonResult['timestamp'] = int(startTime.replace(tzinfo=datetime.timezone.utc).timestamp()) + int(float(result.group(2)))
+            second = int(float(result.group(2)))
+            date = startTime + timedelta(seconds=second)
+            jsonResult['timestamp'] = int(date.timestamp())
             jsonResult['throughput'] = float(result.group(8))
 
             if protocol == 'UDP':
