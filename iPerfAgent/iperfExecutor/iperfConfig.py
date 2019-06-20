@@ -12,8 +12,9 @@ class iPerfConfig:
     def parseParameters(cls, parameters: List[str]) -> Dict:
         params = {}
         for param in parameters:
-            param = param.replace('%20', ' ')
-            param = param.strip().split(' ')
+            if ':' not in param:
+                param = param.strip().replace(' ', ': ')
+            param = param.strip().split(': ')
             k = param[0]
             if len(param) > 1:
                 v = param[1]
