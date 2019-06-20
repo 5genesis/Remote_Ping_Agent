@@ -39,17 +39,14 @@ class iPerfConfig:
 
             second = int(float(result.group(2)))
             date = startTime + timedelta(seconds=second)
-            jsonResult['timestamp'] = int(date.timestamp())
+            jsonResult['timestamp'] = date.timestamp()
             jsonResult['throughput'] = float(result.group(8))
 
-            if protocol == 'UDP':
-                udpResult = re.search(udpPattern, line)
-                if udpResult:
+            udpResult = re.search(udpPattern, line)
+
+            if protocol == 'UDP' and udpResult:
                     jsonResult['jitter'] = udpResult.group(1)
                     jsonResult['packetLoss'] = udpResult.group(3)
-                else:
-                    jsonResult['jitter'] = 0
-                    jsonResult['packetLoss'] = 0
             else:
                 jsonResult['jitter'] = 0
                 jsonResult['packetLoss'] = 0
