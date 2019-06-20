@@ -1,6 +1,6 @@
 import os
 import yaml
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from typing import List
 from iperfExecutor import iPerf
 from iperfExecutor.iperfConfig import iPerfConfig
@@ -21,20 +21,31 @@ def runIperf(clientServer: str, host: str, parameters: List[str]):
         iPerf.Server(parameters)
 
 
-@app.route('/Client', methods=['GET'])
+@app.route('/Client', methods=['GET', 'POST'])
 def BasicClient():
     try:
-        runIperf('Client', '127.0.0.1', [])
+        if request.method == 'POST':
+            jsonBody = str(request.json)
+            parameters = jsonBody[1:-1].replace('\'', '').split(',')
+            runIperf('Client', '127.0.0.1', parameters)
+        else:
+            runIperf('Client', '127.0.0.1', [])
         return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf client'})
+
     except RuntimeError as error:
         print(f'{error}')
         return jsonify({'Status': 'Error', 'Message': 'Error executing iPerf client', 'Error': f'{error}'}), 403
 
 
-@app.route('/Server', methods=['GET'])
+@app.route('/Server', methods=['GET', 'POST'])
 def BasicServer():
     try:
-        runIperf('Server', '', [])
+        if request.method == 'POST':
+            jsonBody = str(request.json)
+            parameters = jsonBody[1:-1].replace('\'', '').split(',')
+            runIperf('Server', '', parameters)
+        else:
+            runIperf('Server', '', [])
         return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf server'})
 
     except RuntimeError as error:
