@@ -89,6 +89,9 @@ class iPerf:
         if cls.isRunning:
             raise RuntimeError('iPerf already running')
 
+        # Shorten long parameters format
+        parametersDict = iPerfConfig.shortenParameters(parametersDict)
+
         # Force format to MBytes and interval to 1s
         parametersDict['-f'] = 'M'
         parametersDict['-i'] = '1'

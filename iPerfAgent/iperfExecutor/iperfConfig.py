@@ -2,7 +2,30 @@ import re
 from typing import List, Dict
 from datetime import datetime, timedelta
 
+
 class iPerfConfig:
+    longParameters = {
+        "--bandwidth": "-b",
+        "--bind": "-B",
+        "--client": "-c",  # for iPerf Server
+        "--compatibility": "-C",
+        "--dualtest": "-d",
+        "--format": "-f",
+        "--interval": "-i",
+        "--len": "-l",
+        "--listenport": "-L",
+        "--print_mss": "-m",
+        "--mss": "-M",
+        "--num": "-n",
+        "--nodelay": "-N",
+        "--port": "-p",
+        "--tradeoff": "-r",
+        "--tos": "-S",
+        "--time": "-t",
+        "--ttl": "-T",
+        "--udp": "-u",
+        "--window": "-w"
+    }
 
     @classmethod
     def formatValidation(cls, parameters: str) -> bool:
@@ -23,6 +46,19 @@ class iPerfConfig:
             params[k] = v
 
         return params
+
+    @classmethod
+    def shortenParameters(cls, parameters: Dict) -> Dict:
+        print(parameters)
+        shortParameters = parameters
+        for param in parameters.keys():
+            if param in cls.longParameters.keys():
+                value = shortParameters[param]
+                shortParameters.pop(param)
+                shortParameters[cls.longParameters[param]] = value
+
+        print(shortParameters)
+        return shortParameters
 
     @classmethod
     def parseIperfResult(cls, line: str, protocol: str, parallelEnabled: bool, startTime: datetime):
