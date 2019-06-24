@@ -1,6 +1,6 @@
 import os
 import yaml
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from typing import List
 from iperfExecutor import iPerf
 from iperfExecutor.iperfConfig import iPerfConfig
@@ -14,66 +14,32 @@ with open(os.path.join(THIS_FOLDER, 'config.yml'), 'r', encoding='utf-8') as fil
 iPerf.Initialize(data['IPERF_PATH'])
 
 
-def runIperf(clientServer: str, host: str, parameters: List[str]):
-    if clientServer == 'Client':
-        iPerf.Client(host, parameters)
-    else:
-        iPerf.Server(parameters)
-
-
-@app.route('/Client', methods=['GET'])
-def BasicClient():
+@app.route('/Iperf', methods=['POST'])
+@app.route('/Iperf/<pathParameters>', methods=['GET'])
+def Iperf(pathParameters: str = ""):
+    mode = 'server'
     try:
-        runIperf('Client', '127.0.0.1', [])
-        return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf client'})
+        if request.method == 'POST':
+            jsonBody = str(request.json)
+            parameters = jsonBody[1:-1].replace('\'', '').split(',')
+        else:
+            if iPerfConfig.formatValidation(pathParameters):
+                parameters = pathParameters[1:-1].split(',')
+            else:
+                print(f'Wrong parameters format')
+                return jsonify({'Status': 'Error', 'Message': f'Error executing iPerf',
+                                'Error': 'Wrong parameters format.'}), 403
+
+        for param in parameters:
+            if '-c' in param:
+                mode = "client"
+                break
+        iPerf.Iperf(parameters)
+        return jsonify({'Status': 'Success', 'Message': f'Successfully executed iPerf {mode}'})
+
     except RuntimeError as error:
         print(f'{error}')
-        return jsonify({'Status': 'Error', 'Message': 'Error executing iPerf client', 'Error': f'{error}'}), 403
-
-
-@app.route('/Server', methods=['GET'])
-def BasicServer():
-    try:
-        runIperf('Server', '', [])
-        return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf server'})
-
-    except RuntimeError as error:
-        print(f'{error}')
-        return jsonify({'Status': 'Error', 'Message': 'Error executing iPerf server', 'Error': f'{error}'}), 403
-
-
-@app.route('/Client/<parameters>', methods=['GET'])
-def Client(parameters: str):
-    if iPerfConfig.formatValidation(parameters):
-        try:
-            parameters = parameters[1:-1].split(',')
-            runIperf('Client', '127.0.0.1', parameters)
-            return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf client'})
-
-        except RuntimeError as error:
-            print(f'{error}')
-            return jsonify({'Status': 'Error', 'Message': 'Error executing iPerf client', 'Error': f'{error}'}), 403
-    else:
-        print(f'Wrong parameters format')
-        return jsonify({'Status': 'Error', 'Message': 'Error executing iPerf server',
-                        'Error': 'Wrong parameters format.'}), 403
-
-
-@app.route('/Server/<parameters>', methods=['GET'])
-def Server(parameters: str):
-    if iPerfConfig.formatValidation(parameters):
-        try:
-            parameters = parameters[1:-1].split(',')
-            runIperf('Server', '', parameters)
-            return jsonify({'Status': 'Success', 'Message': 'Successfully executed iPerf server'})
-
-        except RuntimeError as error:
-            print(f'{error}')
-            return jsonify({'Status': 'Error', 'Message': 'Error executing iPerf server', 'Error': f'{error}'}), 403
-    else:
-        print(f'Wrong parameters format')
-        return jsonify({'Status': 'Error', 'Message': 'Error executing iPerf server',
-                        'Error': 'Wrong parameters format.'}), 403
+        return jsonify({'Status': 'Error', 'Message': f'Error executing iPerf {mode}', 'Error': f'{error}'}), 403
 
 
 @app.route('/Close', methods=['GET'])

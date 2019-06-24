@@ -22,11 +22,8 @@ class iPerf:
         cls.executable = executable
 
     @classmethod
-    def Server(cls, parameters: List[str]):
+    def Iperf(cls, parameters: List[str]):
         params = iPerfConfig.parseParameters(parameters)
-        if '-s' not in params.keys():
-            params['-s'] = ""
-
         return cls.execute(params)
 
     @classmethod
@@ -39,13 +36,6 @@ class iPerf:
         cls.isRunning = False
         return 1
 
-    @classmethod
-    def Client(cls, host: str, parameters: List[str]):
-        params = iPerfConfig.parseParameters(parameters)
-        if '-c' not in params.keys():
-            params['-c'] = host
-
-        return cls.execute(params)
 
     @classmethod
     def LastRawResult(cls):
@@ -88,6 +78,9 @@ class iPerf:
             raise RuntimeError('Running iPerf without executable')
         if cls.isRunning:
             raise RuntimeError('iPerf already running')
+
+        # Shorten long parameters format
+        parametersDict = iPerfConfig.shortenParameters(parametersDict)
 
         # Force format to MBytes and interval to 1s
         parametersDict['-f'] = 'M'
