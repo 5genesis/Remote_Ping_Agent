@@ -34,6 +34,34 @@ class ping:
         return cls.execute(params)
 
     @classmethod
+    def Close(cls):
+        if not cls.isRunning or cls.processPID == -1:
+            raise RuntimeError('ping is not running')
+
+        os.kill(cls.processPID, signal.SIGTERM)
+        cls.processPID = -1
+        cls.isRunning = False
+        return 1
+
+    @classmethod
+    def LastJsonResult(cls):
+        if cls.isRunning:
+            raise RuntimeError("ping is still running")
+
+        print(f'Last Json Result: {cls.jsonResult}')
+        return cls.jsonResult
+
+    @classmethod
+    def StartDateTime(cls):
+        print(f'Start Date Time: {cls.startTime}')
+        return cls.startTime
+
+    @classmethod
+    def IsRunning(cls):
+        print(f'Is Running: {cls.isRunning}')
+        return cls.isRunning
+
+    @classmethod
     def execute(cls, parameters: List[str]) -> None:
         if cls.isRunning:
             raise RuntimeError('ping already running')
