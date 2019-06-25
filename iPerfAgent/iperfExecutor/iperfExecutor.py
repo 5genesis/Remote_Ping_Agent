@@ -131,6 +131,7 @@ class iPerf:
     def async_task(cls, params: List[str], protocol: str, parallelEnabled: bool):
         cls.isRunning = True
         cls.rawResult = []
+        cls.jsonResult = []
         cls.error = []
         cls.startTime = datetime.utcnow()
         try:
