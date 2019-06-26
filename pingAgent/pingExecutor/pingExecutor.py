@@ -1,6 +1,5 @@
 import os
 import signal
-import platform
 import subprocess
 import pingparsing
 from textwrap import dedent
@@ -20,14 +19,8 @@ class ping:
     def Ping(cls, address: str, packetSize: int):
         params = []
         if int(packetSize) > 0:
-            if platform.system() == 'Windows':
-                params.append('-l')
-            else:
-                params.append('-s')
+            params.append('-s')
             params.append(f'{packetSize}')
-
-        if platform.system() == 'Windows':
-            params.append('-t')
 
         params.append(address)
 
@@ -67,7 +60,6 @@ class ping:
             raise RuntimeError('ping already running')
 
         params = ['ping', *parameters]
-        print(params)
         Thread(target=cls.async_task, args=(params,)).start()
         return None
 
@@ -84,13 +76,17 @@ class ping:
             if 'error' in line or 'failed' in line:
                 cls.error.append(line)
             if line != '':
-                print(line)
                 pingResult.append(line)
 
         parser = pingparsing.PingParsing()
+        pingResult.extend([
+            "--- demo.com ping statistics ---",
+            "0 packets transmitted, 0 received, 0% packet loss, time 0ms",
+            "rtt min/avg/max/mdev = 0.0/0.0/0.0/0.0 ms",
+            ])
         stats = parser.parse(dedent("\n".join(pingResult)))
 
-        cls.jsonResult = stats.as_dict()
+        cls.jsonResult = stats.icmp_replies
 
     @classmethod
     def async_task(cls, params: List[str]):

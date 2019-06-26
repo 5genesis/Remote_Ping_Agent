@@ -1,5 +1,3 @@
-import json
-import pingparsing
 from flask import Flask, jsonify
 from pingExecutor import ping
 
