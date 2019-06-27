@@ -5,13 +5,8 @@ app = Flask(__name__)
 
 
 @app.route('/ping/<address>', methods=['GET'])
-def Ping(address: str):
-    ping.Ping(address, 0)
-    return ""
-
-
 @app.route('/ping/<address>/size/<packetSize>', methods=['GET'])
-def PingCustomSize(address: str, packetSize: int):
+def Ping(address: str, packetSize: int = 0):
     ping.Ping(address, packetSize)
     return ""
 
