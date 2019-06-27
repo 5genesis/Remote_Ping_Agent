@@ -79,7 +79,7 @@ def LastError():
     try:
         iPerf.LastError()
         return jsonify({'Status': 'Success', 'Message': 'Successfully retrieved last error',
-                        'Result': iPerf.LastError()})
+                        'Error': iPerf.LastError()})
     except RuntimeError as error:
         print(f'{error}')
         return jsonify({'Status': 'Error', 'Message': 'Error retrieving last error', 'Error': f'{error}'}), 403
