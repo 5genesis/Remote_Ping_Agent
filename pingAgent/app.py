@@ -7,8 +7,12 @@ app = Flask(__name__)
 @app.route('/ping/<address>', methods=['GET'])
 @app.route('/ping/<address>/size/<packetSize>', methods=['GET'])
 def Ping(address: str, packetSize: int = 0):
-    ping.Ping(address, packetSize)
-    return ""
+    try:
+        ping.Ping(address, packetSize)
+        return jsonify({'Status': 'Success', 'Message': 'Successfully executed ping'})
+    except RuntimeError as error:
+        print(f'{error}')
+        return jsonify({'Status': 'Error', 'Message': 'Error executing ping', 'Error': f'{error}'}), 403
 
 
 @app.route('/Close', methods=['GET'])
