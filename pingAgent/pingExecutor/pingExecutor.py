@@ -21,7 +21,7 @@ class ping:
         if int(packetSize) > 0:
             params.append('-s')
             params.append(f'{packetSize}')
-        params.append('-o')
+        params.append('-O')
         params.append(address)
 
         return cls.execute(params)
