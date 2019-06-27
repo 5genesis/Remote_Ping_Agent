@@ -4,8 +4,8 @@ from pingExecutor import ping
 app = Flask(__name__)
 
 
-@app.route('/ping/<address>', methods=['GET'])
-@app.route('/ping/<address>/size/<packetSize>', methods=['GET'])
+@app.route('/Ping/<address>', methods=['GET'])
+@app.route('/Ping/<address>/Size/<packetSize>', methods=['GET'])
 def Ping(address: str, packetSize: int = 0):
     try:
         ping.Ping(address, packetSize)
