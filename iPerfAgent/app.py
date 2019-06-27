@@ -1,7 +1,6 @@
 import os
 import yaml
 from flask import Flask, jsonify, request
-from typing import List
 from iperfExecutor import iPerf
 from iperfExecutor.iperfConfig import iPerfConfig
 
