@@ -3,14 +3,14 @@ import signal
 import subprocess
 import pingparsing
 from textwrap import dedent
-from typing import List
+from typing import List, Dict
 from datetime import datetime
 from threading import Thread
 
 
 class ping:
     isRunning = False
-    jsonResult: List[str] = []
+    jsonResult: Dict = {}
     error: List[str] = []
     startTime: datetime = None
     processPID: int = -1
@@ -67,6 +67,8 @@ class ping:
     def stdout(cls, process: subprocess.Popen):
         pipe = process.stdout
         pingResult = []
+        lostPings = []
+
         for line in iter(pipe.readline, b''):
             try:
                 line = line.decode('utf-8').rstrip()
@@ -75,6 +77,11 @@ class ping:
 
             if 'error' in line or 'failed' in line:
                 cls.error.append(line)
+
+            if 'no answer yet for icmp_seq=' in line:
+                lost_seq = int(line.replace('no answer yet for icmp_seq=', ''))
+                lostPings.append(lost_seq)
+
             if line != '':
                 pingResult.append(line)
 
@@ -83,10 +90,16 @@ class ping:
             "--- demo.com ping statistics ---",
             "0 packets transmitted, 0 received, 0% packet loss, time 0ms",
             "rtt min/avg/max/mdev = 0.0/0.0/0.0/0.0 ms",
-            ])
+        ])
         stats = parser.parse(dedent("\n".join(pingResult)))
+        icmp_replies = stats.icmp_replies
 
-        cls.jsonResult = stats.icmp_replies
+        for lost in lostPings:
+            icmp_replies.insert(lost-1, {'timestamp': None, 'icmp_seq': lost, 'ttl': 54, 'time': -1.0,
+                                         'duplicate': False})
+
+        cls.jsonResult = {'total': len(icmp_replies), 'success': len(icmp_replies)-len(lostPings),
+                          'icmp_replies': icmp_replies}
 
     @classmethod
     def async_task(cls, params: List[str]):
