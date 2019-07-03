@@ -4,7 +4,7 @@ import subprocess
 import pingparsing
 from textwrap import dedent
 from typing import List, Dict
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Thread
 
 
@@ -97,6 +97,8 @@ class ping:
         for lost in lostPings:
             icmp_replies.insert(lost-1, {'timestamp': None, 'icmp_seq': lost, 'ttl': 54, 'time': -1.0,
                                          'duplicate': False})
+        for icmp in icmp_replies:
+            icmp['timestamp'] = cls.startTime + timedelta(seconds=icmp['icmp_seq'])
 
         cls.jsonResult = {'total': len(icmp_replies), 'success': len(icmp_replies)-len(lostPings),
                           'icmp_replies': icmp_replies}
