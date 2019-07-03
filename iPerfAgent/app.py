@@ -54,7 +54,6 @@ def Close():
 @app.route('/LastRawResult', methods=['GET'])
 def LastRawResult():
     try:
-        iPerf.LastRawResult()
         return jsonify({'Status': 'Success', 'Message': 'Successfully retrieved last raw result',
                         'Result': iPerf.LastRawResult()})
     except RuntimeError as error:
@@ -65,7 +64,6 @@ def LastRawResult():
 @app.route('/LastJsonResult', methods=['GET'])
 def LastJsonResult():
     try:
-        iPerf.LastJsonResult()
         return jsonify({'Status': 'Success', 'Message': 'Successfully retrieved last json result',
                         'Result': iPerf.LastJsonResult()})
     except RuntimeError as error:
@@ -76,7 +74,6 @@ def LastJsonResult():
 @app.route('/LastError', methods=['GET'])
 def LastError():
     try:
-        iPerf.LastError()
         return jsonify({'Status': 'Success', 'Message': 'Successfully retrieved last error',
                         'Error': iPerf.LastError()})
     except RuntimeError as error:
