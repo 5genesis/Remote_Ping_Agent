@@ -100,7 +100,8 @@ class ping:
             icmp_replies.insert(lost-1, {'timestamp': None, 'icmp_seq': lost, 'ttl': 54, 'time': -1.0,
                                          'duplicate': False})
         for icmp in icmp_replies:
-            icmp['timestamp'] = cls.startTime + timedelta(seconds=icmp['icmp_seq'])
+            date = cls.startTime + timedelta(seconds=icmp['icmp_seq'])
+            icmp['timestamp'] = date.timestamp()
 
         cls.jsonResult = {'total': len(icmp_replies), 'success': len(icmp_replies)-len(lostPings),
                           'icmp_replies': icmp_replies}
