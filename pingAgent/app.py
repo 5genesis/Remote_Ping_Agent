@@ -28,7 +28,6 @@ def Close():
 @app.route('/LastJsonResult', methods=['GET'])
 def LastJsonResult():
     try:
-        ping.LastJsonResult()
         return jsonify({'Status': 'Success', 'Message': 'Successfully retrieved last json result',
                         'Result': ping.LastJsonResult()})
     except RuntimeError as error:
