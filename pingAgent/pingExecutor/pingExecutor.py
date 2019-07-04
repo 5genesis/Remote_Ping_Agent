@@ -1,4 +1,5 @@
 import os
+import re
 import signal
 import subprocess
 import pingparsing
@@ -78,8 +79,9 @@ class ping:
             if 'error' in line or 'failed' in line:
                 cls.error.append(line)
 
-            if 'no answer yet for icmp_seq=' in line:
-                lost_seq = int(line.replace('no answer yet for icmp_seq=', ''))
+            result = re.search(r'no answer yet for icmp_seq=(\d+)', line)
+            if result:
+                lost_seq = int(result.group(1))
                 lostPings.append(lost_seq)
 
             if line != '':
