@@ -4,6 +4,9 @@
 
  - [Python 3.7.x](https://www.python.org)
 
+> Due to the different output format and parameters between the Windows and Linux versions of ping this agent 
+> **can only be deployed on Linux**.
+
 ## Installing (development)
 
 1. Clone the repository to a known folder, e.g. in `c:\malaga-platform` 
@@ -17,11 +20,6 @@ pip install virtualenv
 virtualenv venv
 ```
 4. Activate the virtual environment:
-- For Windows:
-```powershell
-venv\Scripts\Activate.bat
-```
-- For Linux:
 ```bash
 source venv/bin/activate
 ```
@@ -54,4 +52,3 @@ The Ping Agent exposes a REST API with the following endpoints:
 ## License
 
 TBD
-
