@@ -82,8 +82,8 @@ class iPerf:
         # Shorten long parameters format
         parametersDict = iPerfConfig.shortenParameters(parametersDict)
 
-        # Force format to MBytes and interval to 1s
-        parametersDict['-f'] = 'M'
+        # Force format to Mbits/sec and interval to 1s
+        parametersDict['-f'] = 'm'
         parametersDict['-i'] = '1'
 
         if '-u' in parametersDict.keys() or '-U' in parametersDict.keys():
