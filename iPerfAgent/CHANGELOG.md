@@ -1,3 +1,7 @@
+**20/06/2019** [Version 1.0.3]
+
+ - Change results format to Mbits/sec
+
 **20/06/2019** [Version 1.0.2]
 
  - Added support for long parameters
