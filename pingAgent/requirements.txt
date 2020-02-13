@@ -1,15 +1,2 @@
-chardet==3.0.4
-Click==7.0
 Flask==1.0.3
-humanreadable==0.0.7
-itsdangerous==1.1.0
-Jinja2==2.10.1
-Logbook==1.4.3
-MarkupSafe==1.1.1
-mbstrdecoder==0.8.1
 pingparsing==0.18.1
-pyparsing==2.4.0
-six==1.12.0
-subprocrunner==0.17.1
-typepy==0.6.0
-Werkzeug==0.15.4
