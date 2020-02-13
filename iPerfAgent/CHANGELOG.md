@@ -1,4 +1,9 @@
-**20/06/2019** [Version 1.0.3]
+**13/02/2020** [Version 1.0.4]
+
+ - Fixed parsing error
+ - Removed unnecessary dependencies from requirements
+
+**12/02/2020** [Version 1.0.3]
 
  - Change results format to Mbits/sec
 
