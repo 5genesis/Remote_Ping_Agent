@@ -62,10 +62,8 @@ class iPerfConfig:
 
     @classmethod
     def parseIperfResult(cls, line: str, protocol: str, parallelEnabled: bool, startTime: datetime):
-        pattern = r'\[(.*)] *(\d+(\.\d+)?) *- *(\d+(\.\d+)?) *sec *(\d+(\.\d+)?) *[GKM]Bytes *(\d+(\.\d+)?) *[GKM]Bytes/sec(.*)?'
-        # [  3]  0.0-10.0 sec  44712 MBytes  4468 MBytes/sec
+        pattern = r'\[(.*)] *(\d+(\.\d+)?) *- *(\d+(\.\d+)?) *sec *(\d+(\.\d+)?) *MBytes *(\d+(\.\d+)?) *Mbits/sec(.*)?'
         udpPattern = r' *(\d+(\.\d+)?) *ms *\d+ */ *\d+ \((\d+(\.\d+)?)%\) *'
-        # [  3]  0.0-10.0 sec  1.25 MBytes  0.12 MBytes/sec   0.024 ms    0/  893 (0%)
         jsonResult = {}
         result = re.search(pattern, line)
         if result:
