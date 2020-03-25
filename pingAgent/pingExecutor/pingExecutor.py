@@ -5,7 +5,7 @@ import subprocess
 import pingparsing
 from textwrap import dedent
 from typing import List, Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from threading import Thread
 
 
@@ -110,7 +110,7 @@ class ping:
     def async_task(cls, params: List[str]):
         cls.isRunning = True
         cls.error = []
-        cls.startTime = datetime.utcnow()
+        cls.startTime = datetime.now(timezone.utc)
         try:
             process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             cls.processPID = process.pid

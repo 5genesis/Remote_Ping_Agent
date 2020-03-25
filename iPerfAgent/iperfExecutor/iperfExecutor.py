@@ -2,7 +2,7 @@ import os
 import signal
 import subprocess
 from typing import List, Dict
-from datetime import datetime
+from datetime import datetime, timezone
 from threading import Thread
 from iperfExecutor.iperfConfig import iPerfConfig
 
@@ -133,7 +133,7 @@ class iPerf:
         cls.rawResult = []
         cls.jsonResult = []
         cls.error = []
-        cls.startTime = datetime.utcnow()
+        cls.startTime = datetime.now(timezone.utc)
         try:
             process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             cls.processPID = process.pid
