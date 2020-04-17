@@ -1,14 +1,16 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from pingExecutor import ping
 
 app = Flask(__name__)
 
 
 @app.route('/Ping/<address>', methods=['GET'])
-@app.route('/Ping/<address>/Size/<packetSize>', methods=['GET'])
-def Ping(address: str, packetSize: int = 0):
+def Ping(address: str):
     try:
-        ping.Ping(address, packetSize)
+        interval = request.args.get('interval', 1.0)
+        size = request.args.get('size', 0)
+        ttl = request.args.get('ttl', 0)
+        ping.Ping(address, interval, size, ttl)
         return jsonify({'Status': 'Success', 'Message': 'Successfully executed ping'})
     except RuntimeError as error:
         print(f'{error}')
