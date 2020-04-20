@@ -1,3 +1,7 @@
+**20/04/2020** [Version 1.0.5]
+
+ - Allow setting the reporting interval (-i)
+
 **13/02/2020** [Version 1.0.4]
 
  - Fixed parsing error

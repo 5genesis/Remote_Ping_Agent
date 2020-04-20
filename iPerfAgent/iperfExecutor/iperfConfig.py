@@ -36,13 +36,10 @@ class iPerfConfig:
         params = {}
         for param in parameters:
             if ':' not in param:
-                param = param.strip().replace(' ', ': ')
-            param = param.strip().split(': ')
-            k = param[0]
-            if len(param) > 1:
-                v = param[1]
-            else:
-                v = ''
+                param = param.strip().replace(' ', ':')
+            param = param.strip().split(':')
+            k = param[0].strip()
+            v = param[1].strip() if len(param) > 1 else ''
             params[k] = v
 
         return params
@@ -61,7 +58,8 @@ class iPerfConfig:
         return shortParameters
 
     @classmethod
-    def parseIperfResult(cls, line: str, protocol: str, parallelEnabled: bool, startTime: datetime):
+    def parseIperfResult(cls, line: str, protocol: str, parallelEnabled: bool, startTime: datetime, interval: int):
+        print(line)
         pattern = r'\[(.*)] *(\d+(\.\d+)?) *- *(\d+(\.\d+)?) *sec *(\d+(\.\d+)?) *MBytes *(\d+(\.\d+)?) *Mbits/sec(.*)?'
         udpPattern = r' *(\d+(\.\d+)?) *ms *\d+ */ *\d+ \((\d+(\.\d+)?)%\) *'
         jsonResult = {}
@@ -86,7 +84,7 @@ class iPerfConfig:
                 jsonResult['jitter'] = 0
                 jsonResult['packetLoss'] = 0
 
-            if float(result.group(4)) - float(result.group(2)) > 1:
+            if float(result.group(4)) - float(result.group(2)) > interval:
                 return None
             else:
                 return jsonResult
