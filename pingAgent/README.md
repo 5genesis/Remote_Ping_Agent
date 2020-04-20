@@ -37,8 +37,10 @@ Press `Control+C` to stop the development server.
 ### Usage
 
 The Ping Agent exposes a REST API with the following endpoints:
-* `/Ping/<address>`: Executes ping process to the given address. Returns a JSON reporting the success of the execution and a message.
-* `/Ping/<address>/Size/<packetSize>`: Executes ping process to the given address with the specific number of data bytes to be sent. Returns a JSON reporting the success of the command execution and a message.
+* `/Ping/<address>`: Executes ping process to the given address. Returns a JSON reporting the success of the execution and a message. The following URL parameters can be used:
+    * interval: Ping interval
+    * size: Packet size
+    * ttl: Time to Live 
 * `/Close`: Closes ping process. Returns a JSON reporting the success of the process closure and a message.
 * `/LastJsonResult`: Retrieve the result of the previous executions. Returns a JSON reporting the success of the retrieval, a message and a list of Results (dictionary with parsed results).
 * `/StartDateTime`: Retrieve the date and time of the last execution. Returns a JSON reporting the success of the retrieval and a message informing of the date.
