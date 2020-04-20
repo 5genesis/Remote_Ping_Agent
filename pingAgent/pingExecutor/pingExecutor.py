@@ -17,15 +17,15 @@ class ping:
     processPID: int = -1
 
     @classmethod
-    def Ping(cls, address: str, packetSize: int):
-        params = []
-        if int(packetSize) > 0:
-            params.append('-s')
-            params.append(f'{packetSize}')
-        params.append('-O')
+    def Ping(cls, address: str, interval: float, size: int, ttl: int):
+        params = ['-i', str(interval), '-O']
+        if size > 0:
+            params.extend(['-s', str(size)])
+        if ttl > 0:
+            params.extend(['-t', str(ttl)])
         params.append(address)
 
-        return cls.execute(params)
+        return cls.execute(params, interval)
 
     @classmethod
     def Close(cls):
@@ -56,16 +56,16 @@ class ping:
         return cls.isRunning
 
     @classmethod
-    def execute(cls, parameters: List[str]) -> None:
+    def execute(cls, parameters: List[str], interval: float) -> None:
         if cls.isRunning:
             raise RuntimeError('ping already running')
 
         params = ['ping', *parameters]
-        Thread(target=cls.async_task, args=(params,)).start()
+        Thread(target=cls.async_task, args=(params, interval)).start()
         return None
 
     @classmethod
-    def stdout(cls, process: subprocess.Popen):
+    def stdout(cls, process: subprocess.Popen, interval: float):
         pipe = process.stdout
         pingResult = []
         lostPings = []
@@ -100,14 +100,14 @@ class ping:
             icmp_replies.insert(lost-1, {'timestamp': None, 'icmp_seq': lost, 'ttl': 54, 'time': -1.0,
                                          'duplicate': False})
         for icmp in icmp_replies:
-            date = cls.startTime + timedelta(seconds=icmp['icmp_seq'])
+            date = cls.startTime + timedelta(seconds=(icmp['icmp_seq']*interval))
             icmp['timestamp'] = date.timestamp()
 
         cls.jsonResult = {'total': len(icmp_replies), 'success': len(icmp_replies)-len(lostPings),
                           'icmp_replies': icmp_replies}
 
     @classmethod
-    def async_task(cls, params: List[str]):
+    def async_task(cls, params: List[str], interval: float):
         cls.isRunning = True
         cls.error = []
         cls.startTime = datetime.now(timezone.utc)
@@ -115,7 +115,7 @@ class ping:
             process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             cls.processPID = process.pid
             print('ping running')
-            cls.stdout(process)
+            cls.stdout(process, interval)
             process.wait()
         except Exception as e:
             print(f'Error in process: {e}')

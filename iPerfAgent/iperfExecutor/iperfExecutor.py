@@ -82,9 +82,11 @@ class iPerf:
         # Shorten long parameters format
         parametersDict = iPerfConfig.shortenParameters(parametersDict)
 
-        # Force format to Mbits/sec and interval to 1s
+        # Force format to Mbits/sec and interval to 1s if not present
         parametersDict['-f'] = 'm'
-        parametersDict['-i'] = '1'
+        if '-i' not in parametersDict.keys():
+            parametersDict['-i'] = '1'
+        interval = int(parametersDict['-i'])
 
         if '-u' in parametersDict.keys() or '-U' in parametersDict.keys():
             protocol = 'UDP'
@@ -100,20 +102,21 @@ class iPerf:
             parallelEnabled = False
 
         parameters = []
-        for key in parametersDict.keys():
+        for key, value in parametersDict.items():
             parameters.append(key)
-            parameters.append(parametersDict[key])
+            if len(value) != 0:
+                parameters.append(value)
 
         params = [cls.executable, *parameters]
-        Thread(target=cls.async_task, args=(params, protocol, parallelEnabled)).start()
+        print(params)
+        Thread(target=cls.async_task, args=(params, protocol, parallelEnabled, interval)).start()
         return None
 
     @classmethod
-    def stdout(cls, process: subprocess.Popen, protocol: str, parallelEnabled: bool):
+    def stdout(cls, process: subprocess.Popen, protocol: str, parallelEnabled: bool, interval: int):
         pipe = process.stdout
 
         for line in iter(pipe.readline, b''):
-
             try:
                 line = line.decode('utf-8').rstrip()
             except Exception as e:
@@ -122,13 +125,13 @@ class iPerf:
             if 'error' in line or 'failed' in line:
                 cls.error.append(line)
 
-            parse = iPerfConfig.parseIperfResult(line, protocol, parallelEnabled, cls.startTime)
+            parse = iPerfConfig.parseIperfResult(line, protocol, parallelEnabled, cls.startTime, interval)
             if parse:
                 cls.rawResult.append(line)
                 cls.jsonResult.append(parse)
 
     @classmethod
-    def async_task(cls, params: List[str], protocol: str, parallelEnabled: bool):
+    def async_task(cls, params: List[str], protocol: str, parallelEnabled: bool, interval: int):
         cls.isRunning = True
         cls.rawResult = []
         cls.jsonResult = []
@@ -145,7 +148,7 @@ class iPerf:
                 cls.isServer = True
                 print('Server running')
 
-            cls.stdout(process, protocol, parallelEnabled)
+            cls.stdout(process, protocol, parallelEnabled, interval)
             process.wait()
         except Exception as e:
             print(f'Error in process: {e}')
