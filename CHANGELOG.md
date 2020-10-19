@@ -1,3 +1,8 @@
+**19/10/2020** [Version 1.0.4]
+
+ - Fix handling of ping process closure
+ - Improve debugging and error handling
+
 **20/04/2020** [Version 1.0.3]
 
  - Allow setting the ping interval (-i) and TTL (-t)

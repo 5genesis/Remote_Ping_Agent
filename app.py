@@ -4,6 +4,11 @@ from pingExecutor import ping
 app = Flask(__name__)
 
 
+def errorResponse(message, error):
+    print(f'{message}: {error}')
+    return jsonify({'Status': 'Error', 'Message': message, 'Error': f'{error}'}), 403
+
+
 @app.route('/Ping/<address>', methods=['GET'])
 def Ping(address: str):
     try:
@@ -13,8 +18,7 @@ def Ping(address: str):
         ping.Ping(address, interval, size, ttl)
         return jsonify({'Status': 'Success', 'Message': 'Successfully executed ping'})
     except Exception as error:
-        print(f'{error}')
-        return jsonify({'Status': 'Error', 'Message': 'Error executing ping', 'Error': f'{error}'}), 403
+        return errorResponse('Error executing ping', error)
 
 
 @app.route('/Close', methods=['GET'])
@@ -23,8 +27,7 @@ def Close():
         ping.Close()
         return jsonify({'Status': 'Success', 'Message': 'Successfully closed ping'})
     except Exception as error:
-        print(f'{error}')
-        return jsonify({'Status': 'Error', 'Message': 'Error closing ping', 'Error': f'{error}'}), 403
+        return errorResponse('Error closing ping', error)
 
 
 @app.route('/LastJsonResult', methods=['GET'])
@@ -33,8 +36,7 @@ def LastJsonResult():
         return jsonify({'Status': 'Success', 'Message': 'Successfully retrieved last json result',
                         'Result': ping.LastJsonResult()})
     except Exception as error:
-        print(f'{error}')
-        return jsonify({'Status': 'Error', 'Message': 'Error retrieving last json result', 'Error': f'{error}'}), 403
+        return errorResponse('Error retrieving last json result', error)
 
 
 @app.route('/StartDateTime', methods=['GET'])

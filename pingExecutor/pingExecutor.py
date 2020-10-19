@@ -4,9 +4,10 @@ import signal
 import subprocess
 import pingparsing
 from textwrap import dedent
-from typing import List, Dict
+from typing import List, Dict, Optional
 from datetime import datetime, timedelta, timezone
 from threading import Thread
+from pprint import pprint
 
 
 class ping:
@@ -14,7 +15,7 @@ class ping:
     jsonResult: Dict = {}
     error: List[str] = []
     startTime: datetime = None
-    processPID: int = -1
+    processPID: Optional[int] = None
 
     @classmethod
     def Ping(cls, address: str, interval: float, size: int, ttl: int):
@@ -29,13 +30,9 @@ class ping:
 
     @classmethod
     def Close(cls):
-        if not cls.isRunning or cls.processPID == -1:
+        if not cls.isRunning or cls.processPID is None:
             raise RuntimeError('ping is not running')
-
         os.kill(cls.processPID, signal.SIGTERM)
-        cls.processPID = -1
-        cls.isRunning = False
-        return 1
 
     @classmethod
     def LastJsonResult(cls):
@@ -61,6 +58,7 @@ class ping:
             raise RuntimeError('ping already running')
 
         params = ['ping', *parameters]
+        print(f'Final CLI paramenters: {params}')
         Thread(target=cls.async_task, args=(params, interval)).start()
         return None
 
@@ -75,6 +73,8 @@ class ping:
                 line = line.decode('utf-8').rstrip()
             except Exception as e:
                 line = f'DECODING EXCEPTION: {e}'
+
+            print(line)
 
             if 'error' in line or 'failed' in line:
                 cls.error.append(line)
@@ -106,10 +106,14 @@ class ping:
         cls.jsonResult = {'total': len(icmp_replies), 'success': len(icmp_replies)-len(lostPings),
                           'icmp_replies': icmp_replies}
 
+        print("Final JSON results")
+        pprint(cls.jsonResult)
+
     @classmethod
     def async_task(cls, params: List[str], interval: float):
         cls.isRunning = True
         cls.error = []
+        cls.jsonResult = {}
         cls.startTime = datetime.now(timezone.utc)
         try:
             process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -121,5 +125,6 @@ class ping:
             print(f'Error in process: {e}')
         finally:
             cls.isRunning = False
+            cls.processPID = None
 
         print('ping finished')
