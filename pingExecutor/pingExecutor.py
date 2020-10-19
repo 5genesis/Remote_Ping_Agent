@@ -7,6 +7,7 @@ from textwrap import dedent
 from typing import List, Dict
 from datetime import datetime, timedelta, timezone
 from threading import Thread
+from pprint import pprint
 
 
 class ping:
@@ -61,6 +62,7 @@ class ping:
             raise RuntimeError('ping already running')
 
         params = ['ping', *parameters]
+        print(f'Final CLI paramenters: {params}')
         Thread(target=cls.async_task, args=(params, interval)).start()
         return None
 
@@ -75,6 +77,8 @@ class ping:
                 line = line.decode('utf-8').rstrip()
             except Exception as e:
                 line = f'DECODING EXCEPTION: {e}'
+
+            print(line)
 
             if 'error' in line or 'failed' in line:
                 cls.error.append(line)
@@ -105,6 +109,9 @@ class ping:
 
         cls.jsonResult = {'total': len(icmp_replies), 'success': len(icmp_replies)-len(lostPings),
                           'icmp_replies': icmp_replies}
+
+        print("Final JSON results")
+        pprint(cls.jsonResult)
 
     @classmethod
     def async_task(cls, params: List[str], interval: float):
