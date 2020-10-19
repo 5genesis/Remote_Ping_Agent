@@ -113,6 +113,7 @@ class ping:
     def async_task(cls, params: List[str], interval: float):
         cls.isRunning = True
         cls.error = []
+        cls.jsonResult = {}
         cls.startTime = datetime.now(timezone.utc)
         try:
             process = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
