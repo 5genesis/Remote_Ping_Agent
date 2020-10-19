@@ -4,7 +4,7 @@ import signal
 import subprocess
 import pingparsing
 from textwrap import dedent
-from typing import List, Dict
+from typing import List, Dict, Optional
 from datetime import datetime, timedelta, timezone
 from threading import Thread
 from pprint import pprint
@@ -15,7 +15,7 @@ class ping:
     jsonResult: Dict = {}
     error: List[str] = []
     startTime: datetime = None
-    processPID: int = -1
+    processPID: Optional[int] = None
 
     @classmethod
     def Ping(cls, address: str, interval: float, size: int, ttl: int):
@@ -30,13 +30,9 @@ class ping:
 
     @classmethod
     def Close(cls):
-        if not cls.isRunning or cls.processPID == -1:
+        if not cls.isRunning or cls.processPID is None:
             raise RuntimeError('ping is not running')
-
         os.kill(cls.processPID, signal.SIGTERM)
-        cls.processPID = -1
-        cls.isRunning = False
-        return 1
 
     @classmethod
     def LastJsonResult(cls):
@@ -128,5 +124,6 @@ class ping:
             print(f'Error in process: {e}')
         finally:
             cls.isRunning = False
+            cls.processPID = None
 
         print('ping finished')
